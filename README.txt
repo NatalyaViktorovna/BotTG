@@ -1,0 +1,1 @@
+Файл db.py добавляет функцию insert_message для записи данных в PostgreSQL.
