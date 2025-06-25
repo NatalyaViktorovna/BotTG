@@ -1,5 +1,5 @@
 import os
-from db import log_message_to_db
+from db import log_message_to_db, init_db
 from telegram.ext import ApplicationBuilder, MessageHandler, filters
 from openai_service import translate_text
 
@@ -14,6 +14,8 @@ async def handle_message(update, context):
     log_message_to_db(user_id=user_id, username=username, original=user_text, translated=translated)
 
     await update.message.reply_text(translated)
+    
+init_db()
 
 def setup_bot():
     app = ApplicationBuilder().token(os.environ["TELEGRAM_BOT_TOKEN"]).build()
