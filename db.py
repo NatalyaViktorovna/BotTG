@@ -1,19 +1,28 @@
-import os
-import psycopg2
-from psycopg2.extras import RealDictCursor
+import sqlite3
 
-DATABASE_URL = os.environ.get("DATABASE_URL")
+# Создание таблицы (один раз при запуске)
+def init_db():
+    conn = sqlite3.connect("messages.db")
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS messages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            username TEXT,
+            original TEXT,
+            translated TEXT
+        )
+    """)
+    conn.commit()
+    conn.close()
 
-def insert_message(user_id, username, original, translated, country):
-    try:
-        conn = psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
-        cur = conn.cursor()
-        cur.execute("""
-            INSERT INTO messages (user_id, username, original, translated, country)
-            VALUES (%s, %s, %s, %s, %s)
-        """, (user_id, username, original, translated, country))
-        conn.commit()
-        cur.close()
-        conn.close()
-    except Exception as e:
-        print(f"[DB Error] Failed to insert message: {e}")
+# Запись нового сообщения
+def log_message_to_db(user_id, username, original, translated):
+    conn = sqlite3.connect("messages.db")
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO messages (user_id, username, original, translated)
+        VALUES (?, ?, ?, ?)
+    """, (user_id, username, original, translated))
+    conn.commit()
+    conn.close()
